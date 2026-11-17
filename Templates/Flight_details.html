@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight {{ flight.flight_number }}</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <a href="/dashboard">← Back</a>
+        <div>{{ flight.flight_number }}</div>
+    </header>
+    <div class="container">
+        <p><strong>Date:</strong> {{ flight.date }}</p>
+        <p><strong>Time:</strong> {{ flight.time }}</p>
+        <p><strong>Guard:</strong> {{ flight.guard_name }}</p>
+        <p><strong>License:</strong> {{ flight.license_number or '—' }}</p>
+        <p><strong>Notes:</strong> {{ flight.notes or 'None' }}</p>
+
+        <h3>Photos ({{ photos|length }})</h3>
+        {% if photos %}
+            {% for photo in photos %}
+                <img src="/uploads/{{ photo.filename }}" alt="Photo" style="max-width:100%; margin-bottom:10px;">
+            {% endfor %}
+        {% else %}
+            <p>No photos.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
