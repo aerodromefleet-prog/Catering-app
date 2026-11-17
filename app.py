@@ -1,3 +1,5 @@
+
+cat > /root/Catering-app/app.py << 'ENDOFFILE'
 from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory, flash
 import sqlite3
 import os
@@ -10,15 +12,13 @@ from email.mime.multipart import MIMEMultipart
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "porter_catering_ais_2026_secure")
 app.config['UPLOAD_FOLDER'] = 'uploads'
-app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100 MB
+app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024
 
-# Email settings
 EMAIL_FROM = os.environ.get("EMAIL_FROM", "aerodromefleet@gmail.com")
 EMAIL_TO = os.environ.get("EMAIL_TO", "cctv@security-ais.com")
 EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD", "lsqugmsfjrthfzeu")
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-
 DB = 'porter.db'
 
 def get_db():
@@ -30,28 +30,14 @@ def init_db():
     conn = get_db()
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY,
-        username TEXT UNIQUE,
-        name TEXT,
-        license_number TEXT,
-        password TEXT
+        id INTEGER PRIMARY KEY, username TEXT UNIQUE, name TEXT, license_number TEXT, password TEXT
     )''')
     c.execute('''CREATE TABLE IF NOT EXISTS flights (
-        id INTEGER PRIMARY KEY,
-        flight_number TEXT,
-        date TEXT,
-        time TEXT,
-        guard_name TEXT,
-        license_number TEXT,
-        notes TEXT,
-        created_at TEXT,
-        created_by TEXT
+        id INTEGER PRIMARY KEY, flight_number TEXT, date TEXT, time TEXT, guard_name TEXT,
+        license_number TEXT, notes TEXT, created_at TEXT, created_by TEXT
     )''')
     c.execute('''CREATE TABLE IF NOT EXISTS photos (
-        id INTEGER PRIMARY KEY,
-        flight_id INTEGER,
-        filename TEXT,
-        uploaded_at TEXT,
+        id INTEGER PRIMARY KEY, flight_id INTEGER, filename TEXT, uploaded_at TEXT,
         FOREIGN KEY(flight_id) REFERENCES flights(id)
     )''')
     c.execute("INSERT OR IGNORE INTO users (username, name, license_number, password) VALUES (?, ?, ?, ?)",
@@ -167,14 +153,14 @@ Flight ID: {flight_id}
 """
         msg.attach(MIMEText(body, 'plain'))
 
-        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server = smtplib.SMTP('smtp.gmail.com', 587, timeout=10)
         server.starttls()
         server.login(EMAIL_FROM, EMAIL_PASSWORD)
         server.send_message(msg)
         server.quit()
         print("Email sent successfully")
     except Exception as e:
-        print(f"Email failed: {e}")
+        print(f"Email failed (non-fatal): {e}")
 
 @app.route('/flight/<int:flight_id>')
 def flight_detail(flight_id):
@@ -194,3 +180,4 @@ def uploaded_file(filename):
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)), debug=False)
+ENDOFFILE
